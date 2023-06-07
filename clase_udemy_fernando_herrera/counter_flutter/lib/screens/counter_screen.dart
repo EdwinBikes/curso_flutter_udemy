@@ -1,4 +1,3 @@
-import 'package:counter_flutter/players/players.dart';
 import 'package:flutter/material.dart';
 
 
@@ -11,22 +10,6 @@ class CounterScreen extends StatefulWidget {
 
 class _CounterScreenState extends State<CounterScreen> {
   int clickCounter = 0;
-List<Jugador> jugadores = [];
-
-void sumarPuntos(String nombreJugador) {
-  setState(() {
-    Jugador? jugador = jugadores.firstWhere(
-      (jugador) => jugador.nombre == nombreJugador,
-     
-    );
-
-    if (jugador != null) {
-      jugador.vecesGanadas++;
-    } else {
-      jugadores.add(Jugador(nombre: nombreJugador, vecesGanadas: 1));
-    }
-  });
-}
 
   @override
   Widget build(BuildContext context) {
