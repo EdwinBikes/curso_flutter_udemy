@@ -117,11 +117,10 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                
                 SizedBox(height: 38),
                 const Text(
                   'Turno del Jugador',
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 16),
                 ),
                 Text(
                   currentPlayer.name,
@@ -130,7 +129,7 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
                 SizedBox(height: 38),
                 const Text(
                   'Total de Puntos:',
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 16),
                 ),
                 Text(
                   '${currentPlayer.points}',
@@ -170,16 +169,37 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 26),
+                const SizedBox(height: 26),
                 ElevatedButton(
                   onPressed: switchPlayer,
-                  child: const Text('Guardar puntos'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.lightBlue),
+                    foregroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white), // Color de la fuente
+                  ),
+                  child: const Text(
+                    'Guardar puntos',
+                    style: TextStyle(
+                      fontSize: 16, // Tamaño de la fuente
+                    ),
+                  ),
                 ),
-                SizedBox(height: 48),
+                const SizedBox(height: 48),
                 ElevatedButton(
-                  onPressed: resetPoints,
-                  child: const Text('Reiniciar puntos'),
-                ),
+                    onPressed: switchPlayer,
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.redAccent),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          Colors.white), // Color de la fuente
+                    ),
+                    child: const Text(
+                      'Reiniciar puntos',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    )),
               ],
             ),
           ),

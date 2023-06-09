@@ -1,8 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:counter_flutter/screens/counter_screen.dart';
+import 'package:counter_flutter/screens/start/player_textfield.dart';
+import 'package:counter_flutter/screens/start/start_button.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({Key? key}) : super(key: key);
@@ -14,6 +15,19 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen> {
   int playerCount = 0;
   List<String> playerNames = [];
+  List<String> defaultPlayerNames = [];
+
+  @override
+  void initState() {
+    super.initState();
+    initializeDefaultPlayerNames();
+  }
+
+  void initializeDefaultPlayerNames() {
+    defaultPlayerNames =
+        List.generate(playerCount, (index) => 'Jugador ${index + 1}');
+    playerNames = List.from(defaultPlayerNames);
+  }
 
   void navigateToCounterFunctionsScreen() {
     Navigator.push(
@@ -135,7 +149,7 @@ class _StartScreenState extends State<StartScreen> {
               onChanged: (value) {
                 setState(() {
                   playerCount = int.tryParse(value) ?? 0;
-                  playerNames = List.generate(playerCount, (_) => '');
+                  initializeDefaultPlayerNames();
                 });
               },
             ),
@@ -153,38 +167,33 @@ class _StartScreenState extends State<StartScreen> {
                 ),
               ],
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: playerCount,
-              itemBuilder: (context, index) {
-                return Hero(
-                  tag: 'start_player_${index + 1}',
-                  child: TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        playerNames[index] = value;
-                      });
-                    },
+            Expanded(
+              child: ListView(
+                children: [
+                  for (var index = 0; index < playerCount; index++)
+                    Hero(
+                      tag: 'start_player_${index + 1}',
+                      child: PlayerTextField(
+                        onChanged: (value) {
+                          setState(() {
+                            playerNames[index] = value;
+                          });
+                        },
+                        defaultText: defaultPlayerNames[index],
+                      ),
+                    ),
+                  const SizedBox(height: 36),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: StartButton(
+                      onPressed: () {
+                        displayAlert(context);
+                      },
+                    ),
                   ),
-                );
-              },
+                ],
+              ),
             ),
-            const SizedBox(height: 36),
-            ElevatedButton(
-              onPressed: () {
-                displayAlert(context);
-              },
-              style: ButtonStyle(
-                backgroundColor:
-                    MaterialStateProperty.all<Color>(Colors.lightBlue),
-              ),
-              child: const Text(
-                'Iniciar Contador',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 252, 252, 252),
-                ),
-              ),
-            )
           ],
         ),
       ),

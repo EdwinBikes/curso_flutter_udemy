@@ -1,4 +1,4 @@
-import 'package:counter_flutter/screens/inicio_screen.dart';
+import 'package:counter_flutter/screens/start/start_screen.dart';
 import 'package:flutter/material.dart';
 void main() {
   runApp(const MyApp());
