@@ -1,4 +1,4 @@
-package com.example.counter_flutter
+package com.edwin.bikes.contadordepuntos
 
 import io.flutter.embedding.android.FlutterActivity
 

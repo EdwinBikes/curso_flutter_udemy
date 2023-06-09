@@ -1,6 +1,7 @@
-class Jugador {
-  String nombre;
-  int vecesGanadas;
+class Player {
+  String name;
+  int wins;
+  int points;
 
-  Jugador({required this.nombre, this.vecesGanadas = 0});
+  Player({required this.name, this.wins = 0, required int points}) : points = points;
 }
