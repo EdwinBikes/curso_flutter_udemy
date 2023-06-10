@@ -4,7 +4,7 @@ class PlayerTextField extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final String defaultText;
 
-  const PlayerTextField({
+  const PlayerTextField({super.key, 
     required this.onChanged,
     required this.defaultText,
   });

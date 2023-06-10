@@ -14,8 +14,19 @@ class StartScreen extends StatefulWidget {
 
 class _StartScreenState extends State<StartScreen> {
   int playerCount = 0;
+  int winningScore = 0;
   List<String> playerNames = [];
   List<String> defaultPlayerNames = [];
+
+  TextEditingController playerCountController = TextEditingController();
+  TextEditingController winningScoreController = TextEditingController();
+
+  @override
+  void dispose() {
+    playerCountController.dispose();
+    winningScoreController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -29,15 +40,46 @@ class _StartScreenState extends State<StartScreen> {
     playerNames = List.from(defaultPlayerNames);
   }
 
+  void resetApp() {
+    setState(() {
+      playerCount = 0;
+      winningScore = 0;
+      initializeDefaultPlayerNames();
+      playerCountController.clear();
+      winningScoreController.clear();
+    });
+  }
+
   void navigateToCounterFunctionsScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CounterFunctionsScreen(
-          players: playerNames,
+    if (playerCount == 0) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Debes seleccionar al menos un jugador.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Aceptar'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CounterFunctionsScreen(
+            players: playerNames,
+            winningScore: winningScore,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   void displayAlert(BuildContext context) {
@@ -66,8 +108,29 @@ class _StartScreenState extends State<StartScreen> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  navigateToCounterFunctionsScreen();
+                  if (playerCount == 0) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Error'),
+                          content: const Text(
+                              'Debes seleccionar al menos un jugador.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Aceptar'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    Navigator.pop(context);
+                    navigateToCounterFunctionsScreen();
+                  }
                 },
                 child: const Text('Aceptar'),
               ),
@@ -101,8 +164,29 @@ class _StartScreenState extends State<StartScreen> {
             actions: [
               CupertinoDialogAction(
                 onPressed: () {
-                  Navigator.pop(context);
-                  navigateToCounterFunctionsScreen();
+                  if (playerCount == 0) {
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CupertinoAlertDialog(
+                          title: const Text('Error'),
+                          content: const Text(
+                              'Debes seleccionar al menos un jugador.'),
+                          actions: [
+                            CupertinoDialogAction(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Aceptar'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    Navigator.pop(context);
+                    navigateToCounterFunctionsScreen();
+                  }
                 },
                 child: const Text('Aceptar'),
               ),
@@ -124,6 +208,14 @@ class _StartScreenState extends State<StartScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('APP Edwin Bikes Contador'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.restore),
+            onPressed: () {
+              resetApp();
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -145,11 +237,35 @@ class _StartScreenState extends State<StartScreen> {
               ],
             ),
             TextField(
+              controller: playerCountController,
               keyboardType: TextInputType.number,
               onChanged: (value) {
                 setState(() {
                   playerCount = int.tryParse(value) ?? 0;
                   initializeDefaultPlayerNames();
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            const Row(
+              children: [
+                Icon(
+                  Icons.add,
+                  color: Colors.blue,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'Puntaje para Ganar:',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            TextField(
+              controller: winningScoreController,
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                setState(() {
+                  winningScore = int.tryParse(value) ?? 0;
                 });
               },
             ),
@@ -187,7 +303,28 @@ class _StartScreenState extends State<StartScreen> {
                     alignment: Alignment.bottomCenter,
                     child: StartButton(
                       onPressed: () {
-                        displayAlert(context);
+                        if (playerCount == 0) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Error'),
+                                content: const Text(
+                                    'Debes seleccionar al menos un jugador.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Aceptar'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          displayAlert(context);
+                        }
                       },
                     ),
                   ),

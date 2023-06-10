@@ -1,18 +1,22 @@
 import 'package:counter_flutter/players/players.dart';
 import 'package:flutter/material.dart';
-import 'animated_screen.dart';
 
 class CounterFunctionsScreen extends StatefulWidget {
   final List<String> players;
+  final int winningScore;
 
-  const CounterFunctionsScreen({Key? key, required this.players})
-      : super(key: key);
+  const CounterFunctionsScreen({
+    Key? key,
+    required this.players,
+    required this.winningScore,
+  }) : super(key: key);
 
   @override
   State<CounterFunctionsScreen> createState() => _CounterFunctionsScreenState();
 }
 
 class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
+  List<int> scores = [];
   late List<Player> players;
   late int currentPlayerIndex;
   late int currentPoints;
@@ -22,6 +26,44 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
   void initState() {
     super.initState();
     initializePlayers();
+  }
+
+  void initializeScores() {
+    scores = List.generate(widget.players.length, (index) => 0);
+  }
+
+  void updateScore(int playerIndex, int score) {
+    setState(() {
+      scores[playerIndex] += score;
+      checkForWinner(); // Verificar si hay un ganador después de cada actualización de puntaje
+    });
+  }
+
+  void checkForWinner() {
+    for (var i = 0; i < scores.length; i++) {
+      if (scores[i] >= widget.winningScore) {
+        // Mostrar una alerta con el nombre del ganador
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('¡Tenemos un ganador!'),
+              content: Text(
+                  'El jugador ${widget.players[i]} ha ganado con un puntaje de ${scores[i]}.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Aceptar'),
+                ),
+              ],
+            );
+          },
+        );
+        break;
+      }
+    }
   }
 
   void initializePlayers() {
@@ -38,6 +80,28 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
       currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
       currentPoints = players[currentPlayerIndex].points;
       shouldChangeButton = true;
+
+      if (currentPoints >= widget.winningScore) {
+        // Mostrar una alerta con el nombre del ganador al guardar los puntos
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('¡Tenemos un ganador!'),
+              content: Text(
+                  'El jugador ${players[currentPlayerIndex].name} ha ganado con un puntaje de $currentPoints.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Aceptar'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     });
   }
 
@@ -109,33 +173,70 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Puntajes Totales'),
+        actions: [
+          IconButton(
+            onPressed: resetPoints,
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: 38),
-                const Text(
-                  'Turno del Jugador',
-                  style: TextStyle(fontSize: 16),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (var player in players)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                              color:
+                                  player == currentPlayer ? Colors.blue : null,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                '${player.points}',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  color: player == currentPlayer
+                                      ? Colors.white
+                                      : Colors.red,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
+                const SizedBox(height: 48),
+                const Text(
+                  'Turno del Jugador:',
+                  style: TextStyle(fontSize: 26),
+                ),
+                const SizedBox(height: 8),
                 Text(
                   currentPlayer.name,
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 20),
                 ),
-                SizedBox(height: 38),
+                const SizedBox(height: 48),
                 const Text(
                   'Total de Puntos:',
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 26),
                 ),
                 Text(
                   '${currentPlayer.points}',
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 24, color: Colors.red),
                 ),
-                SizedBox(height: 38),
+                const SizedBox(height: 38),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -152,7 +253,7 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 18),
+                const SizedBox(height: 18),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -169,37 +270,38 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 26),
+                const SizedBox(height: 46),
                 ElevatedButton(
                   onPressed: switchPlayer,
                   style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all<Color>(Colors.lightBlue),
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white), // Color de la fuente
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
                   ),
                   child: const Text(
                     'Guardar puntos',
                     style: TextStyle(
-                      fontSize: 16, // Tamaño de la fuente
+                      fontSize: 16,
                     ),
                   ),
                 ),
                 const SizedBox(height: 48),
                 ElevatedButton(
-                    onPressed: switchPlayer,
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.redAccent),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                          Colors.white), // Color de la fuente
+                  onPressed: resetPoints,
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.redAccent),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                  child: const Text(
+                    'Reiniciar puntos',
+                    style: TextStyle(
+                      fontSize: 16,
                     ),
-                    child: const Text(
-                      'Reiniciar puntos',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    )),
+                  ),
+                ),
               ],
             ),
           ),
